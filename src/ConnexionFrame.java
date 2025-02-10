@@ -30,13 +30,24 @@ public class ConnexionFrame extends JFrame {
         connectButton.addActionListener(e -> {
             String email = emailField.getText();
             char[] password = passwordField.getPassword();
-            // Logique de connexion ici
+
+            UtilisateurDAO utilisateurDAO = new UtilisateurDAO();
+            Utilisateur utilisateur = utilisateurDAO.getUtilisateurByEmail(email);
+
+            if (utilisateur != null && utilisateurDAO.getPasswordEncoder().matches(new String(password), utilisateur.getMotDePasse())) {
+                JOptionPane.showMessageDialog(this, "Connexion réussie!");
+                // Rediriger vers VoyageColmarApp
+                new VoyageColmarApp().setVisible(true);
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Email ou mot de passe incorrect.");
+            }
         });
     }
-    
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-        	ConnexionFrame frame = new ConnexionFrame();
+            ConnexionFrame frame = new ConnexionFrame();
             frame.setVisible(true);
         });
     }

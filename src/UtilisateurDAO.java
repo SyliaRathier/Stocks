@@ -1,13 +1,23 @@
-import java.sql.*;
-import java.io.IOException;
-
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 public class UtilisateurDAO {
 
+    private final PasswordEncoder passwordEncoder;
+
     public UtilisateurDAO() {
-        // Le chargement du pilote est déjà fait dans DBConnection
+        this.passwordEncoder = new BCryptPasswordEncoder();
+    }
+    
+    public PasswordEncoder getPasswordEncoder() {
+        return passwordEncoder;
     }
 
     public int ajouter(Utilisateur nouvUtilisateur) {
@@ -21,7 +31,7 @@ public class UtilisateurDAO {
             ps.setString(1, nouvUtilisateur.getNom());
             ps.setString(2, nouvUtilisateur.getPrenom());
             ps.setString(3, nouvUtilisateur.getEmail());
-            ps.setString(4, nouvUtilisateur.getMotDePasse());
+            ps.setString(4, passwordEncoder.encode(nouvUtilisateur.getMotDePasse())); // Hacher le mot de passe
             ps.setInt(5, nouvUtilisateur.getRoleId());
 
             retour = ps.executeUpdate();
@@ -33,7 +43,6 @@ public class UtilisateurDAO {
         }
         return retour;
     }
-    
 
     public void supprimer(int identifiant) {
         Connection con = null;
@@ -63,7 +72,7 @@ public class UtilisateurDAO {
             ps.setString(1, utilisateur.getNom());
             ps.setString(2, utilisateur.getPrenom());
             ps.setString(3, utilisateur.getEmail());
-            ps.setString(4, utilisateur.getMotDePasse());
+            ps.setString(4, passwordEncoder.encode(utilisateur.getMotDePasse())); // Hacher le mot de passe
             ps.setInt(5, utilisateur.getRoleId());
             ps.setInt(6, utilisateur.getIdentifiant());
 
@@ -104,7 +113,7 @@ public class UtilisateurDAO {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        List<Utilisateur> retour = new ArrayList<Utilisateur>();
+        List<Utilisateur> retour = new ArrayList<>();
 
         try {
             con = DriverManager.getConnection(DBConnection.getUrl(), DBConnection.getLogin(), DBConnection.getPass());
@@ -113,6 +122,30 @@ public class UtilisateurDAO {
             rs = ps.executeQuery();
             while (rs.next())
                 retour.add(new Utilisateur(rs.getInt("identifiant"), rs.getString("nom"), rs.getString("prenom"), rs.getString("email"), rs.getString("motdepasse"), rs.getInt("role_id")));
+        } catch (Exception ee) {
+            ee.printStackTrace();
+        } finally {
+            try { if (rs != null) rs.close(); } catch (Exception t) {}
+            try { if (ps != null) ps.close(); } catch (Exception t) {}
+            try { if (con != null) con.close(); } catch (Exception t) {}
+        }
+        return retour;
+    }
+    
+    public Utilisateur getUtilisateurByEmail(String email) {
+        Connection con = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Utilisateur retour = null;
+
+        try {
+            con = DriverManager.getConnection(DBConnection.getUrl(), DBConnection.getLogin(), DBConnection.getPass());
+            ps = con.prepareStatement("SELECT * FROM utilisateur WHERE email = ?");
+            ps.setString(1, email);
+
+            rs = ps.executeQuery();
+            if (rs.next())
+                retour = new Utilisateur(rs.getInt("identifiant"), rs.getString("nom"), rs.getString("prenom"), rs.getString("email"), rs.getString("motdepasse"), rs.getInt("role_id"));
         } catch (Exception ee) {
             ee.printStackTrace();
         } finally {
