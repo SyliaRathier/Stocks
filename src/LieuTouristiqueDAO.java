@@ -2,24 +2,25 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ArticleDAO {
+public class LieuTouristiqueDAO {
 
-    public ArticleDAO() {
+    public LieuTouristiqueDAO() {
         // Le chargement du pilote est déjà fait dans DBConnection
     }
 
-    public int ajouter(Article nouvArticle) {
+    public int ajouter(LieuTouristique nouvLieu) {
         Connection con = null;
         PreparedStatement ps = null;
         int retour = 0;
 
         try {
             con = DriverManager.getConnection(DBConnection.getUrl(), DBConnection.getLogin(), DBConnection.getPass());
-            ps = con.prepareStatement("INSERT INTO article (reference, designation, pu_ht, qtestock) VALUES (?, ?, ?, ?)");
-            ps.setInt(1, nouvArticle.getReference());
-            ps.setString(2, nouvArticle.getDesignation());
-            ps.setDouble(3, nouvArticle.getPuHt());
-            ps.setInt(4, nouvArticle.getQteStock());
+            ps = con.prepareStatement("INSERT INTO lieu_touristique (titre, description, adresse, image, guide_id) VALUES (?, ?, ?, ?, ?)");
+            ps.setString(1, nouvLieu.getTitre());
+            ps.setString(2, nouvLieu.getDescription());
+            ps.setString(3, nouvLieu.getAdresse());
+            ps.setBytes(4, nouvLieu.getImage());
+            ps.setInt(5, nouvLieu.getGuideId());
 
             retour = ps.executeUpdate();
         } catch (Exception ee) {
@@ -30,15 +31,15 @@ public class ArticleDAO {
         }
         return retour;
     }
-    
-    public void supprimer(int reference) {
+
+    public void supprimer(int identifiant) {
         Connection con = null;
         PreparedStatement ps = null;
 
         try {
             con = DriverManager.getConnection(DBConnection.getUrl(), DBConnection.getLogin(), DBConnection.getPass());
-            ps = con.prepareStatement("DELETE FROM article WHERE reference = ?");
-            ps.setInt(1, reference);
+            ps = con.prepareStatement("DELETE FROM lieu_touristique WHERE identifiant = ?");
+            ps.setInt(1, identifiant);
 
             ps.executeUpdate();
         } catch (Exception ee) {
@@ -49,17 +50,19 @@ public class ArticleDAO {
         }
     }
 
-    public void modifier(Article article) {
+    public void modifier(LieuTouristique lieu) {
         Connection con = null;
         PreparedStatement ps = null;
 
         try {
             con = DriverManager.getConnection(DBConnection.getUrl(), DBConnection.getLogin(), DBConnection.getPass());
-            ps = con.prepareStatement("UPDATE article SET designation = ?, pu_ht = ?, qtestock = ? WHERE reference = ?");
-            ps.setString(1, article.getDesignation());
-            ps.setDouble(2, article.getPuHt());
-            ps.setInt(3, article.getQteStock());
-            ps.setInt(4, article.getReference());
+            ps = con.prepareStatement("UPDATE lieu_touristique SET titre = ?, description = ?, adresse = ?, image = ?, guide_id = ? WHERE identifiant = ?");
+            ps.setString(1, lieu.getTitre());
+            ps.setString(2, lieu.getDescription());
+            ps.setString(3, lieu.getAdresse());
+            ps.setBytes(4, lieu.getImage());
+            ps.setInt(5, lieu.getGuideId());
+            ps.setInt(6, lieu.getIdentifiant());
 
             ps.executeUpdate();
         } catch (Exception ee) {
@@ -70,21 +73,20 @@ public class ArticleDAO {
         }
     }
 
-
-    public Article getArticle(int reference) {
+    public LieuTouristique getLieuTouristique(int identifiant) {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        Article retour = null;
+        LieuTouristique retour = null;
 
         try {
             con = DriverManager.getConnection(DBConnection.getUrl(), DBConnection.getLogin(), DBConnection.getPass());
-            ps = con.prepareStatement("SELECT * FROM article WHERE reference = ?");
-            ps.setInt(1, reference);
+            ps = con.prepareStatement("SELECT * FROM lieu_touristique WHERE identifiant = ?");
+            ps.setInt(1, identifiant);
 
             rs = ps.executeQuery();
             if (rs.next())
-                retour = new Article(rs.getInt("reference"), rs.getString("designation"), rs.getDouble("pu_ht"), rs.getInt("qtestock"));
+                retour = new LieuTouristique(rs.getInt("identifiant"), rs.getString("titre"), rs.getString("description"), rs.getString("adresse"), rs.getBytes("image"), rs.getInt("guide_id"));
         } catch (Exception ee) {
             ee.printStackTrace();
         } finally {
@@ -95,19 +97,19 @@ public class ArticleDAO {
         return retour;
     }
 
-    public List<Article> getListeArticles() {
+    public List<LieuTouristique> getListeLieuxTouristiques() {
         Connection con = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        List<Article> retour = new ArrayList<Article>();
+        List<LieuTouristique> retour = new ArrayList<LieuTouristique>();
 
         try {
             con = DriverManager.getConnection(DBConnection.getUrl(), DBConnection.getLogin(), DBConnection.getPass());
-            ps = con.prepareStatement("SELECT * FROM article");
+            ps = con.prepareStatement("SELECT * FROM lieu_touristique");
 
             rs = ps.executeQuery();
             while (rs.next())
-                retour.add(new Article(rs.getInt("reference"), rs.getString("designation"), rs.getDouble("pu_ht"), rs.getInt("qtestock")));
+                retour.add(new LieuTouristique(rs.getInt("identifiant"), rs.getString("titre"), rs.getString("description"), rs.getString("adresse"), rs.getBytes("image"), rs.getInt("guide_id")));
         } catch (Exception ee) {
             ee.printStackTrace();
         } finally {
@@ -116,35 +118,5 @@ public class ArticleDAO {
             try { if (con != null) con.close(); } catch (Exception t) {}
         }
         return retour;
-    }
-
-    public static void main(String[] args) throws SQLException {
-//        ArticleDAO articleDAO = new ArticleDAO();
-//
-//        Article a = new Article(1, "Set de 2 raquettes de ping-pong", 149.9, 10);
-//        int retour = articleDAO.ajouter(a);
-//
-//        System.out.println(retour + " lignes ajoutées");
-//
-//        Article a2 = articleDAO.getArticle(1);
-//        System.out.println(a2);
-//
-//        List<Article> liste = articleDAO.getListeArticles();
-//        for (Article art : liste) {
-//            System.out.println(art.toString());
-//        }
-    	
-    	 //ArticleDAO articleDAO = new ArticleDAO();
-
-    	 // Ajouter un article
-    	 //Article a = new Article(1, "Set de 2 raquettes de ping-pong", 149.9, 10);
-    	 //articleDAO.ajouter(a);
-
-    	    // Modifier un article
-    	 //Article aModifie = new Article(1, "Set de raquettes de ping-pong", 159.9, 15);
-    	 //articleDAO.modifier(aModifie);
-    	 
-    	 // Supprimer un article
-    	 //articleDAO.supprimer(1);
     }
 }
