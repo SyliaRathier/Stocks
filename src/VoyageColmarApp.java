@@ -20,9 +20,12 @@ public class VoyageColmarApp extends JFrame {
     private DefaultListModel<String> listModel;
     private int currentLieuIndex;
     private List<LieuTouristique> lieuxTouristiques;
+    private int utilisateurId;
 
-    public VoyageColmarApp() {
+
+    public VoyageColmarApp(int utilisateurId) {
         // Initialisation de la fenêtre
+        this.utilisateurId = utilisateurId;
         setTitle("Mon voyage à Colmar");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -74,13 +77,11 @@ public class VoyageColmarApp extends JFrame {
         chargerDonnees();
 
         // Ajout des écouteurs d'événements
-        ajouterLieuButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                ajouterLieu();
-            }
+        ajouterLieuButton.addActionListener(e -> {
+            new LieuTouristiqueFrame(utilisateurId).setVisible(true); // Passer l'ID de l'utilisateur connecté
         });
-
+        
+        
         precedentButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -153,8 +154,8 @@ public class VoyageColmarApp extends JFrame {
 
     private void afficherLieu(LieuTouristique lieu) {
         // Mettre à jour l'interface avec les informations du lieu
-        ImageIcon imageIcon = new ImageIcon(lieu.getImage());
-        imageLabel.setIcon(imageIcon);
+//        ImageIcon imageIcon = new ImageIcon(lieu.getImage());
+//        imageLabel.setIcon(imageIcon);
         descriptionArea.setText(lieu.getDescription());
         adresseArea.setText(lieu.getAdresse());
 
@@ -169,8 +170,7 @@ public class VoyageColmarApp extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            VoyageColmarApp app = new VoyageColmarApp();
-            app.setVisible(true);
+            new VoyageColmarApp(1).setVisible(true); // Exemple avec un ID utilisateur
         });
     }
 }

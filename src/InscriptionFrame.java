@@ -12,6 +12,7 @@ public class InscriptionFrame extends JFrame {
     private JCheckBox guideCheckBox;
     private JCheckBox touristeCheckBox;
     private JButton inscriptionButton;
+    private int utilisateurId; // Ajouter un attribut pour stocker l'ID de l'utilisateur connecté
 
     public InscriptionFrame() {
         setTitle("Formulaire d'Inscription");
@@ -116,14 +117,16 @@ public class InscriptionFrame extends JFrame {
             return;
         }
 
-        Utilisateur nouvUtilisateur = new Utilisateur(nom, prenom, email, motDePasse, roleId);
+        Utilisateur nouvUtilisateur = new Utilisateur(0, nom, prenom, email, motDePasse, roleId);
         UtilisateurDAO utilisateurDAO = new UtilisateurDAO();
         int result = utilisateurDAO.ajouter(nouvUtilisateur);
 
         if (result > 0) {
             JOptionPane.showMessageDialog(this, "Inscription réussie!");
+            // Récupérer l'ID de l'utilisateur nouvellement inscrit
+            utilisateurId = utilisateurDAO.getUtilisateurByEmail(email).getIdentifiant();
             // Rediriger vers VoyageColmarApp
-            new VoyageColmarApp().setVisible(true);
+            new VoyageColmarApp(utilisateurId).setVisible(true);
             dispose();
         } else {
             JOptionPane.showMessageDialog(this, "Erreur lors de l'inscription.");

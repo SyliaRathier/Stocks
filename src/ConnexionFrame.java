@@ -4,6 +4,7 @@ import java.awt.*;
 public class ConnexionFrame extends JFrame {
     private JTextField emailField;
     private JPasswordField passwordField;
+    private int utilisateurId; // Ajouter un attribut pour stocker l'ID de l'utilisateur connecté
 
     public ConnexionFrame() {
         setTitle("Connexion");
@@ -36,8 +37,9 @@ public class ConnexionFrame extends JFrame {
 
             if (utilisateur != null && utilisateurDAO.getPasswordEncoder().matches(new String(password), utilisateur.getMotDePasse())) {
                 JOptionPane.showMessageDialog(this, "Connexion réussie!");
+                utilisateurId = utilisateur.getIdentifiant(); // Stocker l'ID de l'utilisateur connecté
                 // Rediriger vers VoyageColmarApp
-                new VoyageColmarApp().setVisible(true);
+                new VoyageColmarApp(utilisateurId).setVisible(true); // Passer l'ID de l'utilisateur connecté
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "Email ou mot de passe incorrect.");

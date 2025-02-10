@@ -15,7 +15,7 @@ public class LieuTouristiqueDAO {
 
         try {
             con = DriverManager.getConnection(DBConnection.getUrl(), DBConnection.getLogin(), DBConnection.getPass());
-            ps = con.prepareStatement("INSERT INTO lieu_touristique (titre, description, adresse, image, guide_id) VALUES (?, ?, ?, ?, ?)");
+            ps = con.prepareStatement("INSERT INTO lieu_touristique (titre, description, adresse, image, idguide) VALUES (?, ?, ?, ?, ?)");
             ps.setString(1, nouvLieu.getTitre());
             ps.setString(2, nouvLieu.getDescription());
             ps.setString(3, nouvLieu.getAdresse());
@@ -56,7 +56,7 @@ public class LieuTouristiqueDAO {
 
         try {
             con = DriverManager.getConnection(DBConnection.getUrl(), DBConnection.getLogin(), DBConnection.getPass());
-            ps = con.prepareStatement("UPDATE lieu_touristique SET titre = ?, description = ?, adresse = ?, image = ?, guide_id = ? WHERE identifiant = ?");
+            ps = con.prepareStatement("UPDATE lieu_touristique SET titre = ?, description = ?, adresse = ?, image = ?, idguide = ? WHERE identifiant = ?");
             ps.setString(1, lieu.getTitre());
             ps.setString(2, lieu.getDescription());
             ps.setString(3, lieu.getAdresse());
@@ -86,7 +86,7 @@ public class LieuTouristiqueDAO {
 
             rs = ps.executeQuery();
             if (rs.next())
-                retour = new LieuTouristique(rs.getInt("identifiant"), rs.getString("titre"), rs.getString("description"), rs.getString("adresse"), rs.getBytes("image"), rs.getInt("guide_id"));
+                retour = new LieuTouristique(rs.getInt("identifiant"), rs.getString("titre"), rs.getString("description"), rs.getString("adresse"), rs.getBytes("image"), rs.getInt("idguide"));
         } catch (Exception ee) {
             ee.printStackTrace();
         } finally {
@@ -109,7 +109,7 @@ public class LieuTouristiqueDAO {
 
             rs = ps.executeQuery();
             while (rs.next())
-                retour.add(new LieuTouristique(rs.getInt("identifiant"), rs.getString("titre"), rs.getString("description"), rs.getString("adresse"), rs.getBytes("image"), rs.getInt("guide_id")));
+                retour.add(new LieuTouristique(rs.getInt("identifiant"), rs.getString("titre"), rs.getString("description"), rs.getString("adresse"), rs.getBytes("image"), rs.getInt("idguide")));
         } catch (Exception ee) {
             ee.printStackTrace();
         } finally {
