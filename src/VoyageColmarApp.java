@@ -146,6 +146,7 @@ public class VoyageColmarApp extends JFrame {
     private void afficherLieuPrecedent() {
         if (currentLieuIndex > 0) {
             currentLieuIndex--;
+            lieuxList.setSelectedIndex(currentLieuIndex); // Mettre à jour la sélection
             afficherLieu(lieuxTouristiques.get(currentLieuIndex));
         }
         verifierNavigation();
@@ -154,10 +155,13 @@ public class VoyageColmarApp extends JFrame {
     private void afficherLieuSuivant() {
         if (currentLieuIndex < lieuxTouristiques.size() - 1) {
             currentLieuIndex++;
+            lieuxList.setSelectedIndex(currentLieuIndex); // Mettre à jour la sélection
             afficherLieu(lieuxTouristiques.get(currentLieuIndex));
         }
         verifierNavigation();
     }
+
+    
 
     private void verifierNavigation() {
         precedentButton.setEnabled(currentLieuIndex > 0);
@@ -206,16 +210,14 @@ public class VoyageColmarApp extends JFrame {
 
     private void afficherLieu(LieuTouristique lieu) {
         // Mettre à jour l'interface avec les informations du lieu
-        byte[] imageData = lieu.getImage(); // Récupérer les bytes de l'image
+        byte[] imageData = lieu.getImage();
         if (imageData != null && imageData.length > 0) {
-            // Convertir les bytes en ImageIcon et l'afficher dans le JLabel
             ImageIcon imageIcon = new ImageIcon(imageData);
-            // Redimensionner l'image pour l'adapter à l'espace
             Image img = imageIcon.getImage();
-            Image scaledImage = img.getScaledInstance(300, 200, Image.SCALE_SMOOTH); // Limiter la taille
+            Image scaledImage = img.getScaledInstance(300, 200, Image.SCALE_SMOOTH);
             imageLabel.setIcon(new ImageIcon(scaledImage));
         } else {
-            imageLabel.setIcon(null); // Ou une image par défaut si vous en avez une
+            imageLabel.setIcon(null);
         }
 
         descriptionArea.setText(lieu.getDescription());
@@ -228,6 +230,10 @@ public class VoyageColmarApp extends JFrame {
         for (Commentaire commentaire : commentaires) {
             commentairesArea.append(commentaire.getTexte() + "\n");
         }
+
+        // Enregistrer la consultation
+        ConsulteDAO consulteDAO = new ConsulteDAO();
+        consulteDAO.enregistrerConsultation(utilisateurId, lieu.getIdentifiant());
 
         // Activer/désactiver les boutons de navigation
         verifierNavigation();
