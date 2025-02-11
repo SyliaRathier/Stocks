@@ -126,7 +126,7 @@ public class InscriptionFrame extends JFrame {
             // Récupérer l'ID de l'utilisateur nouvellement inscrit
             utilisateurId = utilisateurDAO.getUtilisateurByEmail(email).getIdentifiant();
             // Rediriger vers VoyageColmarApp
-            new VoyageColmarApp(utilisateurId).setVisible(true);
+            new VoyageColmarApp(nouvUtilisateur).setVisible(true);
             dispose();
         } else {
             JOptionPane.showMessageDialog(this, "Erreur lors de l'inscription.");
