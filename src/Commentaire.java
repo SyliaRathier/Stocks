@@ -5,6 +5,7 @@ public class Commentaire {
     private String texte;
     private Date datePublication;
     private int lieuId;
+    
 
     public Commentaire(int identifiant, String texte, Date datePublication, int lieuId) {
         this.identifiant = identifiant;
