@@ -4,9 +4,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
-
-
-
 public class VoyageColmarApp extends JFrame {
     private JPanel mainPanel;
     private JPanel leftPanel;
@@ -27,6 +24,7 @@ public class VoyageColmarApp extends JFrame {
     private int currentLieuIndex;
     private List<LieuTouristique> lieuxTouristiques;
     private Utilisateur utilisateur;
+    private JTextField titreField; // Nouveau champ pour le titre
 
     public VoyageColmarApp(Utilisateur utilisateur) {
         // Initialisation de la fenêtre
@@ -64,6 +62,10 @@ public class VoyageColmarApp extends JFrame {
         descriptionLabel = new JLabel();
         adresseLabel = new JLabel();
 
+        // Initialiser le champ titre
+        titreField = new JTextField(20);
+        titreField.setEditable(false); // Par défaut, le champ est non modifiable
+
         // Initialisation de la liste des lieux
         listModel = new DefaultListModel<>();
         lieuxList = new JList<>(listModel);
@@ -74,7 +76,9 @@ public class VoyageColmarApp extends JFrame {
         leftPanel.add(ajouterLieuButton, BorderLayout.NORTH);
         leftPanel.add(listScrollPane, BorderLayout.CENTER);
 
-        // Ajouter l'image, la description, l'adresse et les commentaires au rightPanel
+        // Ajouter l'image, le titre, la description, l'adresse et les commentaires au rightPanel
+        rightPanel.add(new JLabel("Titre :"));
+        rightPanel.add(titreField); // Afficher le champ titre
         rightPanel.add(imageLabel);
         rightPanel.add(new JScrollPane(descriptionArea)); // Afficher la description modifiable
         rightPanel.add(new JScrollPane(adresseArea)); // Afficher l'adresse modifiable
@@ -178,6 +182,7 @@ public class VoyageColmarApp extends JFrame {
         // Rendre les champs modifiables
         descriptionArea.setEditable(true);
         adresseArea.setEditable(true);
+        titreField.setEditable(true); // Rendre le champ titre modifiable
 
         // Changer le texte du bouton Modifier en "Enregistrer"
         modifierButton.setText("Enregistrer");
@@ -190,6 +195,7 @@ public class VoyageColmarApp extends JFrame {
         // Mettre à jour les informations de l'objet avec les nouvelles valeurs
         lieu.setDescription(descriptionArea.getText());
         lieu.setAdresse(adresseArea.getText());
+        lieu.setTitre(titreField.getText()); // Mettre à jour le titre
 
         // Appeler la méthode de DAO pour enregistrer les modifications dans la base de données
         LieuTouristiqueDAO lieuTouristiqueDAO = new LieuTouristiqueDAO();
@@ -201,9 +207,13 @@ public class VoyageColmarApp extends JFrame {
         // Rendre les champs non modifiables après l'enregistrement
         descriptionArea.setEditable(false);
         adresseArea.setEditable(false);
+        titreField.setEditable(false); // Rendre le champ titre non modifiable
 
         // Réinitialiser le bouton Modifier pour qu'il redevienne fonctionnel pour une autre modification
         modifierButton.setText("Modifier");
+
+        // Mettre à jour la liste à gauche avec le nouveau titre
+        listModel.set(currentLieuIndex, lieu.getTitre());
     }
 
     private void afficherLieuSelectionne() {
@@ -216,6 +226,7 @@ public class VoyageColmarApp extends JFrame {
 
     private void afficherLieu(LieuTouristique lieu) {
         // Mettre à jour l'interface avec les informations du lieu
+        titreField.setText(lieu.getTitre()); // Afficher le titre du lieu
         byte[] imageData = lieu.getImage();
         if (imageData != null && imageData.length > 0) {
             ImageIcon imageIcon = new ImageIcon(imageData);
@@ -239,8 +250,8 @@ public class VoyageColmarApp extends JFrame {
 
         // Enregistrer la consultation
         if(utilisateur.getRoleId() == 2) {
-	        ConsulteDAO consulteDAO = new ConsulteDAO();
-	        consulteDAO.enregistrerConsultation(utilisateur.getIdentifiant(), lieu.getIdentifiant());
+            ConsulteDAO consulteDAO = new ConsulteDAO();
+            consulteDAO.enregistrerConsultation(utilisateur.getIdentifiant(), lieu.getIdentifiant());
         }
 
         // Activer/désactiver les boutons de navigation
@@ -274,7 +285,6 @@ public class VoyageColmarApp extends JFrame {
             }
         }
     }
-
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
