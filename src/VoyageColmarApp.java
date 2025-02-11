@@ -74,6 +74,18 @@ public class VoyageColmarApp extends JFrame {
         rightPanel.add(new JScrollPane(descriptionArea)); // Afficher la description modifiable
         rightPanel.add(new JScrollPane(adresseArea)); // Afficher l'adresse modifiable
         rightPanel.add(new JScrollPane(commentairesArea));
+        
+        // Vérification de l'ID utilisateur pour désactiver le bouton
+        if (utilisateurId == 1) {
+            ajouterLieuButton.setEnabled(false);
+            modifierButton.setText("Commenter");
+
+        }
+        
+        if (utilisateurId == 2) {
+            modifierButton.setText("Modifier");
+
+        }
 
         // Ajout du bouton de navigation au bas du rightPanel
         JPanel buttonPanel = new JPanel();
@@ -98,10 +110,15 @@ public class VoyageColmarApp extends JFrame {
         suivantButton.addActionListener(e -> afficherLieuSuivant());
 
         modifierButton.addActionListener(e -> {
-            if ("Modifier".equals(modifierButton.getText())) {
-                modifierLieu();
-            } else {
-                enregistrerModifications();
+        	if (utilisateurId == 2) {
+	            if ("Modifier".equals(modifierButton.getText())) {
+	                modifierLieu();
+	            } else {
+	                enregistrerModifications();
+	            }
+        	}
+        	if(utilisateurId == 1) {
+            	// action commenter
             }
         });
 
