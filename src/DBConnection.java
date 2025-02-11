@@ -1,13 +1,13 @@
 public class DBConnection {
-    final static String URL = "jdbc:mysql://localhost:3306/app"; // Changement de port pour MySQL
+	final static String URL = "jdbc:mariadb://localhost:3307/app";
     final static String LOGIN = "root";
-    final static String PASS = "";
+    final static String PASS = "root";
 
     public DBConnection() {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver"); // Changement du driver pour MySQL
+            Class.forName("org.mariadb.jdbc.Driver");
         } catch (ClassNotFoundException e2) {
-            System.err.println("Impossible de charger le pilote MySQL, ne pas oublier d'importer le fichier .jar dans le projet");
+            System.err.println("Impossible de charger le pilote de BDD, ne pas oublier d'importer le fichier .jar dans le projet");
         }
     }
 
