@@ -4,6 +4,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
 
+
+
+
 public class VoyageColmarApp extends JFrame {
     private JPanel mainPanel;
     private JPanel leftPanel;
@@ -12,6 +15,7 @@ public class VoyageColmarApp extends JFrame {
     private JButton precedentButton;
     private JButton suivantButton;
     private JButton modifierButton;
+    private JButton supprimerButton; // Nouveau bouton supprimer
     private JLabel imageLabel;
     private JLabel descriptionLabel;
     private JLabel adresseLabel;
@@ -43,13 +47,14 @@ public class VoyageColmarApp extends JFrame {
         precedentButton = new JButton("Précédent");
         suivantButton = new JButton("Suivant");
         modifierButton = new JButton("Modifier");
+        supprimerButton = new JButton("Supprimer"); // Nouveau bouton
         imageLabel = new JLabel();
 
         // Initialiser les zones de texte
         descriptionArea = new JTextArea(5, 20);
         adresseArea = new JTextArea(5, 20);
         commentairesArea = new JTextArea(5, 20);
-        
+
         // Rendre ces zones de texte non modifiables au départ
         descriptionArea.setEditable(false);
         adresseArea.setEditable(false);
@@ -58,7 +63,7 @@ public class VoyageColmarApp extends JFrame {
         // Utilisation de JLabel pour afficher les informations non modifiables
         descriptionLabel = new JLabel();
         adresseLabel = new JLabel();
-        
+
         // Initialisation de la liste des lieux
         listModel = new DefaultListModel<>();
         lieuxList = new JList<>(listModel);
@@ -74,20 +79,17 @@ public class VoyageColmarApp extends JFrame {
         rightPanel.add(new JScrollPane(descriptionArea)); // Afficher la description modifiable
         rightPanel.add(new JScrollPane(adresseArea)); // Afficher l'adresse modifiable
         rightPanel.add(new JScrollPane(commentairesArea));
-        
-        // Vérification de l'ID utilisateur pour désactiver le bouton
-        
-        
-        
-        if (utilisateur.getRoleId() == 2) {
+
+        // Vérification de l'ID utilisateur pour désactiver les boutons
+        if (utilisateur.getRoleId() == 2) { // Rôle de touriste
             ajouterLieuButton.setEnabled(false);
             modifierButton.setText("Commenter");
-
+            supprimerButton.setVisible(false); // Masquer le bouton "Supprimer" pour les touristes
         }
-        
-        if (utilisateur.getRoleId() == 1) {
-            modifierButton.setText("Modifier");
 
+        if (utilisateur.getRoleId() == 1) { // Rôle de guide
+            modifierButton.setText("Modifier");
+            supprimerButton.setVisible(true); // Afficher le bouton "Supprimer" pour les guides
         }
 
         // Ajout du bouton de navigation au bas du rightPanel
@@ -95,6 +97,7 @@ public class VoyageColmarApp extends JFrame {
         buttonPanel.add(precedentButton);
         buttonPanel.add(suivantButton);
         buttonPanel.add(modifierButton);
+        buttonPanel.add(supprimerButton); // Ajouter le bouton "Supprimer"
         rightPanel.add(buttonPanel);
 
         mainPanel.add(leftPanel, BorderLayout.WEST);
@@ -113,17 +116,19 @@ public class VoyageColmarApp extends JFrame {
         suivantButton.addActionListener(e -> afficherLieuSuivant());
 
         modifierButton.addActionListener(e -> {
-        	if (utilisateur.getRoleId() == 1) {
-	            if ("Modifier".equals(modifierButton.getText())) {
-	                modifierLieu();
-	            } else {
-	                enregistrerModifications();
-	            }
-        	}
-        	if(utilisateur.getRoleId() == 2) {
-            	// action commenter
+            if (utilisateur.getRoleId() == 1) {
+                if ("Modifier".equals(modifierButton.getText())) {
+                    modifierLieu();
+                } else {
+                    enregistrerModifications();
+                }
+            }
+            if (utilisateur.getRoleId() == 2) {
+                // action commenter
             }
         });
+
+        supprimerButton.addActionListener(e -> supprimerLieu()); // Action pour le bouton "Supprimer"
 
         lieuxList.addListSelectionListener(e -> afficherLieuSelectionne());
     }
@@ -163,8 +168,6 @@ public class VoyageColmarApp extends JFrame {
         }
         verifierNavigation();
     }
-
-    
 
     private void verifierNavigation() {
         precedentButton.setEnabled(currentLieuIndex > 0);
@@ -243,6 +246,35 @@ public class VoyageColmarApp extends JFrame {
         // Activer/désactiver les boutons de navigation
         verifierNavigation();
     }
+
+    private void supprimerLieu() {
+        int confirmation = JOptionPane.showConfirmDialog(this, 
+            "Êtes-vous sûr de vouloir supprimer ce lieu touristique ?", 
+            "Confirmation", 
+            JOptionPane.YES_NO_OPTION);
+        
+        if (confirmation == JOptionPane.YES_OPTION) {
+            // Récupérer l'objet LieuTouristique actuel
+            LieuTouristique lieu = lieuxTouristiques.get(currentLieuIndex);
+
+            // Passer l'identifiant du lieu à la méthode supprimer de LieuTouristiqueDAO
+            LieuTouristiqueDAO lieuTouristiqueDAO = new LieuTouristiqueDAO();
+            lieuTouristiqueDAO.supprimer(lieu.getIdentifiant());  // Utilisation de l'identifiant du lieu
+
+            // Mettre à jour l'affichage après la suppression
+            lieuxTouristiques.remove(currentLieuIndex);
+            listModel.remove(currentLieuIndex);
+
+            // Afficher le lieu précédent, si disponible
+            if (currentLieuIndex > 0) {
+                currentLieuIndex--;
+            }
+            if (!lieuxTouristiques.isEmpty()) {
+                afficherLieu(lieuxTouristiques.get(currentLieuIndex));
+            }
+        }
+    }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
