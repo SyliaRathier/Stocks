@@ -37,9 +37,9 @@ public class ConnexionFrame extends JFrame {
 
             if (utilisateur != null && utilisateurDAO.getPasswordEncoder().matches(new String(password), utilisateur.getMotDePasse())) {
                 JOptionPane.showMessageDialog(this, "Connexion réussie!");
-                utilisateurId = utilisateur.getIdentifiant(); // Stocker l'ID de l'utilisateur connecté
+                //utilisateurId = utilisateur.getIdentifiant(); // Stocker l'ID de l'utilisateur connecté
                 // Rediriger vers VoyageColmarApp
-                new VoyageColmarApp(utilisateurId).setVisible(true); // Passer l'ID de l'utilisateur connecté
+                new VoyageColmarApp(utilisateur).setVisible(true); // Passer l'ID de l'utilisateur connecté
                 dispose();
             } else {
                 JOptionPane.showMessageDialog(this, "Email ou mot de passe incorrect.");

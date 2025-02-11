@@ -22,11 +22,11 @@ public class VoyageColmarApp extends JFrame {
     private DefaultListModel<String> listModel;
     private int currentLieuIndex;
     private List<LieuTouristique> lieuxTouristiques;
-    private int utilisateurId;
+    private Utilisateur utilisateur;
 
-    public VoyageColmarApp(int utilisateurId) {
+    public VoyageColmarApp(Utilisateur utilisateur) {
         // Initialisation de la fenêtre
-        this.utilisateurId = utilisateurId;
+        this.utilisateur = utilisateur;
         setTitle("Mon voyage à Colmar");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -76,13 +76,16 @@ public class VoyageColmarApp extends JFrame {
         rightPanel.add(new JScrollPane(commentairesArea));
         
         // Vérification de l'ID utilisateur pour désactiver le bouton
-        if (utilisateurId == 1) {
+        
+        
+        
+        if (utilisateur.getRoleId() == 2) {
             ajouterLieuButton.setEnabled(false);
             modifierButton.setText("Commenter");
 
         }
         
-        if (utilisateurId == 2) {
+        if (utilisateur.getRoleId() == 1) {
             modifierButton.setText("Modifier");
 
         }
@@ -104,20 +107,20 @@ public class VoyageColmarApp extends JFrame {
         chargerDonnees();
 
         // Ajout des écouteurs d'événements
-        ajouterLieuButton.addActionListener(e -> new LieuTouristiqueFrame(utilisateurId).setVisible(true)); // Passer l'ID de l'utilisateur connecté
+        ajouterLieuButton.addActionListener(e -> new LieuTouristiqueFrame(utilisateur.getIdentifiant()).setVisible(true)); // Passer l'ID de l'utilisateur connecté
 
         precedentButton.addActionListener(e -> afficherLieuPrecedent());
         suivantButton.addActionListener(e -> afficherLieuSuivant());
 
         modifierButton.addActionListener(e -> {
-        	if (utilisateurId == 2) {
+        	if (utilisateur.getRoleId() == 1) {
 	            if ("Modifier".equals(modifierButton.getText())) {
 	                modifierLieu();
 	            } else {
 	                enregistrerModifications();
 	            }
         	}
-        	if(utilisateurId == 1) {
+        	if(utilisateur.getRoleId() == 2) {
             	// action commenter
             }
         });
@@ -232,8 +235,10 @@ public class VoyageColmarApp extends JFrame {
         }
 
         // Enregistrer la consultation
-        ConsulteDAO consulteDAO = new ConsulteDAO();
-        consulteDAO.enregistrerConsultation(utilisateurId, lieu.getIdentifiant());
+        if(utilisateur.getRoleId() == 2) {
+	        ConsulteDAO consulteDAO = new ConsulteDAO();
+	        consulteDAO.enregistrerConsultation(utilisateur.getIdentifiant(), lieu.getIdentifiant());
+        }
 
         // Activer/désactiver les boutons de navigation
         verifierNavigation();
@@ -241,7 +246,7 @@ public class VoyageColmarApp extends JFrame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            new VoyageColmarApp(1).setVisible(true); // Exemple avec un ID utilisateur
+            new VoyageColmarApp(null).setVisible(true); // Exemple avec un ID utilisateur
         });
     }
 }
