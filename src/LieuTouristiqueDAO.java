@@ -1,6 +1,8 @@
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.ImageIcon;
+import java.awt.Image;
 
 public class LieuTouristiqueDAO {
 
@@ -16,12 +18,19 @@ public class LieuTouristiqueDAO {
         try {
             con = DriverManager.getConnection(DBConnection.getUrl(), DBConnection.getLogin(), DBConnection.getPass());
             ps = con.prepareStatement("INSERT INTO lieu_touristique (titre, description, adresse, image, idguide) VALUES (?, ?, ?, ?, ?)");
+
             ps.setString(1, nouvLieu.getTitre());
             ps.setString(2, nouvLieu.getDescription());
             ps.setString(3, nouvLieu.getAdresse());
-            ps.setBytes(4, nouvLieu.getImage());
-            ps.setInt(5, nouvLieu.getGuideId());
 
+            // Vérifier si l'image est null avant d'insérer
+            if (nouvLieu.getImage() != null) {
+                ps.setBytes(4, nouvLieu.getImage());  // Si image est non-nulle
+            } else {
+                ps.setNull(4, Types.BLOB);  // Sinon, mettre NULL dans le champ image
+            }
+
+            ps.setInt(5, nouvLieu.getGuideId());
             retour = ps.executeUpdate();
         } catch (Exception ee) {
             ee.printStackTrace();
@@ -56,6 +65,8 @@ public class LieuTouristiqueDAO {
 
         try {
             con = DriverManager.getConnection(DBConnection.getUrl(), DBConnection.getLogin(), DBConnection.getPass());
+            con.setAutoCommit(false); // Désactive le commit automatique
+
             ps = con.prepareStatement("UPDATE lieu_touristique SET titre = ?, description = ?, adresse = ?, image = ?, idguide = ? WHERE identifiant = ?");
             ps.setString(1, lieu.getTitre());
             ps.setString(2, lieu.getDescription());
@@ -64,9 +75,22 @@ public class LieuTouristiqueDAO {
             ps.setInt(5, lieu.getGuideId());
             ps.setInt(6, lieu.getIdentifiant());
 
-            ps.executeUpdate();
-        } catch (Exception ee) {
-            ee.printStackTrace();
+            int rowsUpdated = ps.executeUpdate();
+            if (rowsUpdated > 0) {
+                con.commit();  // Commit les modifications
+                System.out.println("Modification réussie.");
+            }
+
+        } catch (SQLException e) {
+            try {
+                if (con != null) {
+                    con.rollback();  // Rollback en cas d'erreur
+                }
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+            System.err.println("Erreur lors de la mise à jour : " + e.getMessage());
+            e.printStackTrace();
         } finally {
             try { if (ps != null) ps.close(); } catch (Exception t) {}
             try { if (con != null) con.close(); } catch (Exception t) {}
@@ -85,8 +109,13 @@ public class LieuTouristiqueDAO {
             ps.setInt(1, identifiant);
 
             rs = ps.executeQuery();
-            if (rs.next())
-                retour = new LieuTouristique(rs.getInt("identifiant"), rs.getString("titre"), rs.getString("description"), rs.getString("adresse"), rs.getBytes("image"), rs.getInt("idguide"));
+            if (rs.next()) {
+                byte[] imageBytes = rs.getBytes("image");
+                ImageIcon imageIcon = new ImageIcon(imageBytes);
+                Image image = imageIcon.getImage();  // Convertir l'icône en image
+               
+                retour = new LieuTouristique(rs.getInt("identifiant"), rs.getString("titre"), rs.getString("description"), rs.getString("adresse"), imageBytes, rs.getInt("idguide"));
+            }
         } catch (Exception ee) {
             ee.printStackTrace();
         } finally {

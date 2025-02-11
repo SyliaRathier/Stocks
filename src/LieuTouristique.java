@@ -1,4 +1,7 @@
+import java.awt.Image;
+
 public class LieuTouristique {
+
     private int identifiant;
     private String titre;
     private String description;
@@ -62,5 +65,8 @@ public class LieuTouristique {
 
     public void setGuideId(int guideId) {
         this.guideId = guideId;
-    }
+    } 
+    
+
+ 
 }

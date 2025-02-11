@@ -13,6 +13,8 @@ public class VoyageColmarApp extends JFrame {
     private JButton suivantButton;
     private JButton modifierButton;
     private JLabel imageLabel;
+    private JLabel descriptionLabel;
+    private JLabel adresseLabel;
     private JTextArea descriptionArea;
     private JTextArea adresseArea;
     private JTextArea commentairesArea;
@@ -21,7 +23,6 @@ public class VoyageColmarApp extends JFrame {
     private int currentLieuIndex;
     private List<LieuTouristique> lieuxTouristiques;
     private int utilisateurId;
-
 
     public VoyageColmarApp(int utilisateurId) {
         // Initialisation de la fenêtre
@@ -34,7 +35,8 @@ public class VoyageColmarApp extends JFrame {
         // Initialisation des panneaux
         mainPanel = new JPanel(new BorderLayout());
         leftPanel = new JPanel();
-        rightPanel = new JPanel(new BorderLayout());
+        rightPanel = new JPanel();
+        rightPanel.setLayout(new BoxLayout(rightPanel, BoxLayout.Y_AXIS)); // Utilisation de BoxLayout pour empiler les composants
 
         // Initialisation des composants
         ajouterLieuButton = new JButton("Ajouter un lieu");
@@ -42,10 +44,21 @@ public class VoyageColmarApp extends JFrame {
         suivantButton = new JButton("Suivant");
         modifierButton = new JButton("Modifier");
         imageLabel = new JLabel();
-        descriptionArea = new JTextArea();
-        adresseArea = new JTextArea();
-        commentairesArea = new JTextArea();
 
+        // Initialiser les zones de texte
+        descriptionArea = new JTextArea(5, 20);
+        adresseArea = new JTextArea(5, 20);
+        commentairesArea = new JTextArea(5, 20);
+        
+        // Rendre ces zones de texte non modifiables au départ
+        descriptionArea.setEditable(false);
+        adresseArea.setEditable(false);
+        commentairesArea.setEditable(false);
+
+        // Utilisation de JLabel pour afficher les informations non modifiables
+        descriptionLabel = new JLabel();
+        adresseLabel = new JLabel();
+        
         // Initialisation de la liste des lieux
         listModel = new DefaultListModel<>();
         lieuxList = new JList<>(listModel);
@@ -54,18 +67,20 @@ public class VoyageColmarApp extends JFrame {
         // Ajout des composants aux panneaux
         leftPanel.setLayout(new BorderLayout());
         leftPanel.add(ajouterLieuButton, BorderLayout.NORTH);
-        leftPanel.add(new JScrollPane(lieuxList), BorderLayout.CENTER);
+        leftPanel.add(listScrollPane, BorderLayout.CENTER);
 
-        rightPanel.add(imageLabel, BorderLayout.NORTH);
-        rightPanel.add(new JScrollPane(descriptionArea), BorderLayout.CENTER);
-        rightPanel.add(new JScrollPane(adresseArea), BorderLayout.SOUTH);
-        rightPanel.add(new JScrollPane(commentairesArea), BorderLayout.SOUTH);
+        // Ajouter l'image, la description, l'adresse et les commentaires au rightPanel
+        rightPanel.add(imageLabel);
+        rightPanel.add(new JScrollPane(descriptionArea)); // Afficher la description modifiable
+        rightPanel.add(new JScrollPane(adresseArea)); // Afficher l'adresse modifiable
+        rightPanel.add(new JScrollPane(commentairesArea));
 
+        // Ajout du bouton de navigation au bas du rightPanel
         JPanel buttonPanel = new JPanel();
         buttonPanel.add(precedentButton);
         buttonPanel.add(suivantButton);
         buttonPanel.add(modifierButton);
-        rightPanel.add(buttonPanel, BorderLayout.SOUTH);
+        rightPanel.add(buttonPanel);
 
         mainPanel.add(leftPanel, BorderLayout.WEST);
         mainPanel.add(rightPanel, BorderLayout.CENTER);
@@ -77,29 +92,16 @@ public class VoyageColmarApp extends JFrame {
         chargerDonnees();
 
         // Ajout des écouteurs d'événements
-        ajouterLieuButton.addActionListener(e -> {
-            new LieuTouristiqueFrame(utilisateurId).setVisible(true); // Passer l'ID de l'utilisateur connecté
-        });
-        
-        
-        precedentButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                afficherLieuPrecedent();
-            }
-        });
+        ajouterLieuButton.addActionListener(e -> new LieuTouristiqueFrame(utilisateurId).setVisible(true)); // Passer l'ID de l'utilisateur connecté
 
-        suivantButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                afficherLieuSuivant();
-            }
-        });
+        precedentButton.addActionListener(e -> afficherLieuPrecedent());
+        suivantButton.addActionListener(e -> afficherLieuSuivant());
 
-        modifierButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        modifierButton.addActionListener(e -> {
+            if ("Modifier".equals(modifierButton.getText())) {
                 modifierLieu();
+            } else {
+                enregistrerModifications();
             }
         });
 
@@ -119,12 +121,9 @@ public class VoyageColmarApp extends JFrame {
 
         // Afficher le premier lieu
         if (!lieuxTouristiques.isEmpty()) {
+            currentLieuIndex = 0; // Initialiser l'index sur le premier élément
             afficherLieu(lieuxTouristiques.get(0));
         }
-    }
-
-    private void ajouterLieu() {
-        // Logique pour ajouter un nouveau lieu
     }
 
     private void afficherLieuPrecedent() {
@@ -132,6 +131,7 @@ public class VoyageColmarApp extends JFrame {
             currentLieuIndex--;
             afficherLieu(lieuxTouristiques.get(currentLieuIndex));
         }
+        verifierNavigation();
     }
 
     private void afficherLieuSuivant() {
@@ -139,23 +139,68 @@ public class VoyageColmarApp extends JFrame {
             currentLieuIndex++;
             afficherLieu(lieuxTouristiques.get(currentLieuIndex));
         }
+        verifierNavigation();
+    }
+
+    private void verifierNavigation() {
+        precedentButton.setEnabled(currentLieuIndex > 0);
+        suivantButton.setEnabled(currentLieuIndex < lieuxTouristiques.size() - 1);
     }
 
     private void modifierLieu() {
-        // Logique pour modifier le lieu actuel
+        // Rendre les champs modifiables
+        descriptionArea.setEditable(true);
+        adresseArea.setEditable(true);
+
+        // Changer le texte du bouton Modifier en "Enregistrer"
+        modifierButton.setText("Enregistrer");
+    }
+
+    private void enregistrerModifications() {
+        // Récupérer l'objet LieuTouristique que l'on souhaite modifier
+        LieuTouristique lieu = lieuxTouristiques.get(currentLieuIndex);
+
+        // Mettre à jour les informations de l'objet avec les nouvelles valeurs
+        lieu.setDescription(descriptionArea.getText());
+        lieu.setAdresse(adresseArea.getText());
+
+        // Appeler la méthode de DAO pour enregistrer les modifications dans la base de données
+        LieuTouristiqueDAO lieuTouristiqueDAO = new LieuTouristiqueDAO();
+        lieuTouristiqueDAO.modifier(lieu);  // Met à jour les informations du lieu dans la base de données
+
+        // Mettre à jour l'affichage
+        afficherLieu(lieu);
+
+        // Rendre les champs non modifiables après l'enregistrement
+        descriptionArea.setEditable(false);
+        adresseArea.setEditable(false);
+
+        // Réinitialiser le bouton Modifier pour qu'il redevienne fonctionnel pour une autre modification
+        modifierButton.setText("Modifier");
     }
 
     private void afficherLieuSelectionne() {
         int selectedIndex = lieuxList.getSelectedIndex();
         if (selectedIndex != -1) {
+            currentLieuIndex = selectedIndex; // Mettre à jour l'index actuel
             afficherLieu(lieuxTouristiques.get(selectedIndex));
         }
     }
 
     private void afficherLieu(LieuTouristique lieu) {
         // Mettre à jour l'interface avec les informations du lieu
-//        ImageIcon imageIcon = new ImageIcon(lieu.getImage());
-//        imageLabel.setIcon(imageIcon);
+        byte[] imageData = lieu.getImage(); // Récupérer les bytes de l'image
+        if (imageData != null && imageData.length > 0) {
+            // Convertir les bytes en ImageIcon et l'afficher dans le JLabel
+            ImageIcon imageIcon = new ImageIcon(imageData);
+            // Redimensionner l'image pour l'adapter à l'espace
+            Image img = imageIcon.getImage();
+            Image scaledImage = img.getScaledInstance(300, 200, Image.SCALE_SMOOTH); // Limiter la taille
+            imageLabel.setIcon(new ImageIcon(scaledImage));
+        } else {
+            imageLabel.setIcon(null); // Ou une image par défaut si vous en avez une
+        }
+
         descriptionArea.setText(lieu.getDescription());
         adresseArea.setText(lieu.getAdresse());
 
@@ -166,6 +211,9 @@ public class VoyageColmarApp extends JFrame {
         for (Commentaire commentaire : commentaires) {
             commentairesArea.append(commentaire.getTexte() + "\n");
         }
+
+        // Activer/désactiver les boutons de navigation
+        verifierNavigation();
     }
 
     public static void main(String[] args) {
