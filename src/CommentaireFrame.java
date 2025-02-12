@@ -14,22 +14,35 @@ public class CommentaireFrame extends JFrame {
         this.utilisateurId = utilisateurId;
         this.lieuId = lieuId;
         setTitle("Ajouter un Commentaire");
-        setSize(400, 250);
+        setSize(450, 300);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.insets = new Insets(15, 15, 15, 15);
+
+        JLabel texteLabel = new JLabel("Texte:");
+        texteLabel.setFont(new Font("Arial", Font.PLAIN, 14));
 
         texteArea = new JTextArea(5, 20);
+        texteArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        texteArea.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+
         ajouterButton = new JButton("Ajouter");
+        ajouterButton.setBackground(new Color(66, 133, 244));
+        ajouterButton.setForeground(Color.WHITE);
+        ajouterButton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        ajouterButton.setFocusPainted(false);
 
         gbc.gridx = 0;
         gbc.gridy = 0;
-        add(new JLabel("Texte:"), gbc);
+        gbc.anchor = GridBagConstraints.WEST;
+        add(texteLabel, gbc);
 
         gbc.gridx = 1;
         gbc.gridy = 0;
+        gbc.weightx = 1.0;
+        gbc.fill = GridBagConstraints.HORIZONTAL;
         add(new JScrollPane(texteArea), gbc);
 
         gbc.gridx = 1;

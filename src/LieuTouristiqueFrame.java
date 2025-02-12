@@ -9,7 +9,7 @@ import java.io.IOException;
 public class LieuTouristiqueFrame extends JFrame {
     private JTextField titreField;
     private JTextArea descriptionArea;
-    private JTextField adresseFiels;
+    private JTextField adresseField;
     private JFileChooser fileChooser;
     private JButton imageButton;
     private JButton creerButton;
@@ -18,20 +18,34 @@ public class LieuTouristiqueFrame extends JFrame {
 
     public LieuTouristiqueFrame(int guideId) {
         this.guideId = guideId;
-    	System.out.println(this.guideId);
         setTitle("Créer un Lieu Touristique");
-        setSize(600, 400);
+        setSize(600, 450);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.insets = new Insets(15, 15, 15, 15);
 
         titreField = new JTextField(20);
         descriptionArea = new JTextArea(5, 20);
-        adresseFiels = new JTextField(70);
+        adresseField = new JTextField(20);
         fileChooser = new JFileChooser();
         imageButton = new JButton("Choisir une image");
         creerButton = new JButton("Créer");
+
+        titreField.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        descriptionArea.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        adresseField.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+
+        imageButton.setBackground(new Color(66, 133, 244));
+        imageButton.setForeground(Color.WHITE);
+        imageButton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        imageButton.setFocusPainted(false);
+
+        creerButton.setBackground(new Color(66, 133, 244));
+        creerButton.setForeground(Color.WHITE);
+        creerButton.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
+        creerButton.setFocusPainted(false);
 
         gbc.gridx = 0;
         gbc.gridy = 0;
@@ -55,7 +69,7 @@ public class LieuTouristiqueFrame extends JFrame {
 
         gbc.gridx = 1;
         gbc.gridy = 2;
-        add(adresseFiels, gbc);
+        add(adresseField, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 3;
@@ -85,16 +99,14 @@ public class LieuTouristiqueFrame extends JFrame {
         });
 
         creerButton.addActionListener(e -> creerLieuTouristique());
-
     }
 
     private void creerLieuTouristique() {
         String titre = titreField.getText();
         String description = descriptionArea.getText();
-        String adresse = adresseFiels.getText();
+        String adresse = adresseField.getText();
 
-        if (titre.isEmpty() || description.isEmpty() || adresse.isEmpty()) {
-        	// selectedImage == null
+        if (titre.isEmpty() || description.isEmpty() || adresse.isEmpty() || selectedImage == null) {
             JOptionPane.showMessageDialog(this, "Veuillez remplir tous les champs.");
             return;
         }
@@ -105,9 +117,7 @@ public class LieuTouristiqueFrame extends JFrame {
 
         if (result > 0) {
             JOptionPane.showMessageDialog(this, "Lieu touristique créé avec succès!");
-            // Rediriger vers une autre fenêtre si nécessaire
             dispose();
-
         } else {
             JOptionPane.showMessageDialog(this, "Erreur lors de la création du lieu touristique.");
         }

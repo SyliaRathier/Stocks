@@ -222,6 +222,7 @@ public class VoyageColmarApp extends JFrame {
         } else {
             modifierButton.setText("Commenter");
             ajouterLieuButton.setEnabled(false);
+            supprimerButton.setEnabled(false);
         }
 
         supprimerButton.addActionListener(e -> supprimerLieu());
