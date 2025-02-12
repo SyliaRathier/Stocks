@@ -28,6 +28,7 @@ public class VoyageColmarApp extends JFrame {
     private Utilisateur utilisateur;
     private JTextField searchField;
     private JButton searchButton;
+    private JButton afficherCommentairesButton;
 
     public VoyageColmarApp(Utilisateur utilisateur) {
         this.utilisateur = utilisateur;
@@ -112,7 +113,14 @@ public class VoyageColmarApp extends JFrame {
         searchButton.setBackground(new Color(66, 133, 244));
         searchButton.setForeground(Color.WHITE);
         searchButton.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
-        searchButton.setFocusPainted(false);
+        searchButton.setFocusPainted(false); 
+        
+        
+        
+    
+        
+        
+        
 
         searchButton.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -157,7 +165,22 @@ public class VoyageColmarApp extends JFrame {
         mainPanel.add(rightPanel, BorderLayout.CENTER);
 
         add(mainPanel);
+        
+        // Ajouter un bouton pour afficher les commentaires
+        afficherCommentairesButton = new JButton("Afficher les Commentaires");
+        afficherCommentairesButton.setBackground(new Color(0, 204, 102));
+        afficherCommentairesButton.setForeground(Color.WHITE);
+        afficherCommentairesButton.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
+        afficherCommentairesButton.setFocusPainted(false);
 
+        // Ajouter l'action du bouton
+        afficherCommentairesButton.addActionListener(e -> afficherCommentaires());
+        
+        // Panel des boutons
+        buttonPanel.add(afficherCommentairesButton);
+
+        // Ajouter le panel des boutons dans rightPanel
+        rightPanel.add(buttonPanel, BorderLayout.SOUTH);
         chargerDonnees();
 
         ajouterLieuButton.addActionListener(e -> {
@@ -253,7 +276,15 @@ public class VoyageColmarApp extends JFrame {
         }
         verifierNavigation();
     }
-
+    private void afficherCommentaires() {
+        if (currentLieuIndex >= 0 && currentLieuIndex < lieuxTouristiques.size()) {
+            LieuTouristique lieu = lieuxTouristiques.get(currentLieuIndex);
+            FenetreCommentaires fenetreCommentaires = new FenetreCommentaires(lieu);
+            fenetreCommentaires.setVisible(true);
+        } else {
+            JOptionPane.showMessageDialog(this, "Veuillez sélectionner un lieu pour afficher les commentaires.");
+        }
+    }
     private void verifierNavigation() {
         precedentButton.setEnabled(currentLieuIndex > 0);
         suivantButton.setEnabled(currentLieuIndex < lieuxTouristiques.size() - 1);
