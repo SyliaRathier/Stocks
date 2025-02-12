@@ -16,7 +16,7 @@
   - Par exemple :
     ```java
     public class DBConnection {
-    final static String URL = "jdbc:mariadb://localhost:3307/app"; // Changer le port pour MySQL (3306 par défaut)
+    final static String URL = "jdbc:mysql://localhost:3306/app"; // Changer le port pour MySQL (3306 par défaut)
     final static String LOGIN = "root";
     final static String PASS = "";
     //OU
